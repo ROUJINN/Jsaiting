@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件管理系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <style>
+        .file-item {
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .file-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .search-container {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">文件管理系统</h1>
+        
+        <!-- 消息提示 -->
+        <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${message}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        
+        <!-- 上传区域 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>上传文件</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/upload" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">选择文件</label>
+                        <input type="file" class="form-control" id="file" name="file" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">文件描述</label>
+                        <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">上传</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 搜索区域 -->
+        <div class="search-container">
+            <form action="/search" method="GET" class="d-flex">
+                <input type="text" name="keyword" class="form-control me-2" placeholder="搜索文件..." th:value="${keyword}">
+                <button type="submit" class="btn btn-outline-success">搜索</button>
+            </form>
+        </div>
+        
+        <!-- 文件列表 -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>文件列表</h4>
+                <span th:if="${keyword}" class="text-muted">搜索结果: <span th:text="${keyword}"></span></span>
+            </div>
+            <div class="card-body">
+                <div th:if="${files.empty}" class="text-center p-5">
+                    <p class="text-muted">暂无文件</p>
+                </div>
+                
+                <div th:unless="${files.empty}">
+                    <div class="row row-cols-1 row-cols-md-2 g-4">
+                        <div class="col" th:each="file : ${files}">
+                            <div class="file-item">
+                                <h5 class="card-title" th:text="${file.fileName}"></h5>
+                                <p class="card-text" th:if="${file.description}" th:text="${file.description}"></p>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        类型: <span th:text="${file.fileType}"></span><br>
+                                        大小: <span th:text="${#numbers.formatDecimal(file.size / 1024, 0, 2)} + ' KB'"></span><br>
+                                        上传时间: <span th:text="${#dates.format(file.uploadDate, 'yyyy-MM-dd HH:mm')}"></span>
+                                    </small>
+                                </p>
+                                <a th:href="@{/download/{id}(id=${file.id})}" class="btn btn-sm btn-primary">下载</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

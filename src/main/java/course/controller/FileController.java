@@ -1,0 +1,98 @@
+package course.controller;
+
+import course.model.FileEntity;
+import course.service.FileStorageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
+@Controller
+public class FileController {
+
+    @Autowired
+    private FileStorageService fileStorageService;
+
+    @GetMapping("/")
+    public String homepage(Model model, @RequestParam(required = false) String keyword) {
+        List<FileEntity> files;
+        if (keyword != null && !keyword.isEmpty()) {
+            files = fileStorageService.searchFiles(keyword);
+            model.addAttribute("keyword", keyword);
+        } else {
+            files = fileStorageService.getAllFiles();
+        }
+        model.addAttribute("files", files);
+        return "index";
+    }
+
+    @PostMapping("/upload")
+    public String uploadFile(@RequestParam("file") MultipartFile file,
+                             @RequestParam("description") String description,
+                             RedirectAttributes redirectAttributes) {
+        if (file.isEmpty()) {
+            redirectAttributes.addFlashAttribute("message", "请选择要上传的文件！");
+            return "redirect:/";
+        }
+
+        try {
+            FileEntity savedFile = fileStorageService.storeFile(file, description);
+            redirectAttributes.addFlashAttribute("message", 
+                "文件 '" + savedFile.getFileName() + "' 上传成功！");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", 
+                "文件上传失败: " + e.getMessage());
+        }
+
+        return "redirect:/";
+    }
+
+    @GetMapping("/download/{id}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable Long id, HttpServletRequest request) {
+        Optional<FileEntity> fileEntityOpt = fileStorageService.getFileById(id);
+        
+        if (!fileEntityOpt.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        FileEntity fileEntity = fileEntityOpt.get();
+        Resource resource = fileStorageService.loadFileAsResource(fileEntity.getStoredFilePath());
+
+        // 检测文件的内容类型
+        String contentType = null;
+        try {
+            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+        } catch (IOException ex) {
+            System.out.println("Could not determine file type.");
+        }
+
+        // 如果类型未检测到，则默认使用通用类型
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileEntity.getFileName() + "\"")
+                .body(resource);
+    }
+
+    @GetMapping("/search")
+    public String searchFiles(@RequestParam String keyword, Model model) {
+        List<FileEntity> files = fileStorageService.searchFiles(keyword);
+        model.addAttribute("files", files);
+        model.addAttribute("keyword", keyword);
+        return "index";
+    }
+}
