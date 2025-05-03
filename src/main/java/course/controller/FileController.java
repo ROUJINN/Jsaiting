@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +26,10 @@ public class FileController {
     private FileStorageService fileStorageService;
 
     @GetMapping("/")
-    public String homepage(Model model, @RequestParam(required = false) String keyword) {
+    public String homepage(HttpSession session, Model model, @RequestParam(required = false) String keyword) {
+        if(session.getAttribute("currentUser") == null){
+            return "login";
+        }
         List<FileEntity> files;
         if (keyword != null && !keyword.isEmpty()) {
             files = fileStorageService.searchFiles(keyword);

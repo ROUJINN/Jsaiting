@@ -27,6 +27,10 @@ spring.datasource.username=sa
 
 spring.datasource.password=password
 
+### 登录
+用户名：me\
+密码：password\
+也可以自己注册
 
 ### 用到的技术
 
