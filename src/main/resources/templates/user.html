@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Page</title>
+</head>
+<body>
+<h1>Welcome, <span th:text="${username}">Username</span>!</h1>
+<h2>Upload Records:</h2>
+<ul>
+    <li th:each="record : ${uploadRecords}" th:text="${record.fileName} + ' - ' + ${record.uploadTime}"></li>
+</ul>
+<h2>Download Records:</h2>
+<ul>
+    <li th:each="record : ${downloadRecords}" th:text="${record.fileName} + ' - ' + ${record.downloadTime}"></li>
+</ul>
+<a href="/">Back to Home</a> <!-- 超链接返回首页 -->
+</body>
+</html>

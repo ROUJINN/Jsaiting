@@ -1,5 +1,7 @@
 package course.controller;
 
+import course.model.DownloadRecord;
+import course.model.UploadRecord;
 import course.model.UserEntity;
 import course.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
+
+import java.util.List;
 
 @Controller
 public class UserController {
@@ -46,4 +50,23 @@ public class UserController {
             return "register";
         }
     }
+
+    @GetMapping("/user")
+    public String userPage(HttpSession session, Model model) {
+        UserEntity currentUser = (UserEntity) session.getAttribute("currentUser");
+        if (currentUser != null) {
+            // 假设 UserService 中有方法来获取上传和下载记录
+            List<UploadRecord> uploadRecords = userService.getUploadRecords(currentUser);
+            List<DownloadRecord> downloadRecords = userService.getDownloadRecords(currentUser);
+
+            model.addAttribute("username", currentUser.getUsername());
+            model.addAttribute("uploadRecords", uploadRecords);
+            model.addAttribute("downloadRecords", downloadRecords);
+
+            return "user"; // 返回用户页面的视图名称
+        } else {
+            return "redirect:/login"; // 如果用户未登录，重定向到登录页面
+        }
+    }
+
 }
