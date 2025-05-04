@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜索结果 - 文件管理系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Roboto', sans-serif;
+        }
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://s2.loli.net/2025/05/03/L7y1IpzsaETUc3h.jpg') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .search-header {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        .search-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .search-input {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 25px;
+            padding: 0.8rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            background: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+        .search-btn {
+            border-radius: 25px;
+            padding: 0.8rem 1.5rem;
+        }
+        .results-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+        .file-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+        .file-card:hover {
+            transform: translateY(-5px);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 搜索头部 -->
+        <div class="search-header mb-4">
+            <form action="/search" method="GET" class="search-form">
+                <div class="input-group">
+                    <input type="text" name="keyword" class="form-control search-input" 
+                           th:value="${keyword}" placeholder="搜索文件...">
+                    <button type="submit" class="btn btn-primary search-btn">
+                        <i class="bi bi-search"></i> 搜索
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 搜索结果 -->
+        <div class="results-container">
+            <h4 class="text-white mb-3" th:if="${keyword}">
+                搜索结果: <span th:text="${keyword}"></span>
+            </h4>
+            
+            <!-- 无结果提示 -->
+            <div th:if="${#lists.isEmpty(files)}" class="text-center text-white p-5">
+                <i class="bi bi-search" style="font-size: 3rem;"></i>
+                <p class="mt-3">未找到相关文件</p>
+            </div>
+
+            <!-- 文件列表 -->
+            <div th:unless="${#lists.isEmpty(files)}" class="row">
+                <div th:each="file : ${files}" class="col-md-6 col-lg-4 mb-4">
+                    <div class="file-card p-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-file-earmark-text me-2" style="font-size: 1.5rem;"></i>
+                            <h5 class="mb-0" th:text="${file.fileName}"></h5>
+                        </div>
+                        <p th:if="${file.description}" class="text-muted mb-2" th:text="${file.description}"></p>
+                        <div class="small text-muted">
+                            <div>类型: <span th:text="${file.fileType}"></span></div>
+                            <div>大小: <span th:text="${#numbers.formatDecimal(file.size / 1024, 0, 2)} + ' KB'"></span></div>
+                            <div>上传时间: <span th:text="${#dates.format(file.uploadDate, 'yyyy-MM-dd HH:mm')}"></span></div>
+                        </div>
+                        <div class="mt-2">
+                            <a th:href="@{/download/{id}(id=${file.id})}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-download"></i> 下载
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 返回首页按钮 -->
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-outline-light">
+                <i class="bi bi-house-door"></i> 返回首页
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

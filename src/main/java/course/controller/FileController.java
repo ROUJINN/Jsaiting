@@ -97,6 +97,6 @@ public class FileController {
         List<FileEntity> files = fileStorageService.searchFiles(keyword);
         model.addAttribute("files", files);
         model.addAttribute("keyword", keyword);
-        return "index";
+        return "search";
     }
 }

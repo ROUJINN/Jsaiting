@@ -5,90 +5,297 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文件管理系统</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        .file-item {
-            border: 1px solid #eee;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            transition: all 0.3s;
+        /* 全局字体设置 - 为整个页面设置Roboto字体族，确保统一的字体显示效果 */
+        * {
+            font-family: 'Roboto', sans-serif;
         }
-        .file-item:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        /* 页面主体样式 - 设置全屏背景图和渐变遮罩，创建深色半透明效果 */
+        body {
+            margin: 0; /* 移除页面边距 */
+            padding: 0; /* 移除页面内边距 */
+            min-height: 100vh; /* 设置最小高度为视口高度 */
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://s2.loli.net/2025/05/03/L7y1IpzsaETUc3h.jpg') no-repeat center center fixed; /* 背景图片设置 */
+            background-size: cover; /* 背景图片覆盖整个容器 */
+            color: #fff; /* 文字颜色设置为白色 */
         }
+        /* 主容器布局 - 使用弹性布局实现垂直居中和内容分布 */
+        .main-container {
+            display: flex; /* 启用弹性布局 */
+            flex-direction: column; /* 设置垂直方向排列 */
+            min-height: 100vh; /* 最小高度为视口高度 */
+            padding-top: 15vh; /* 顶部内边距为视口高度的15% */
+            padding-left: 2rem; /* 左侧内边距 */
+            padding-right: 2rem; /* 右侧内边距 */
+            padding-bottom: 2rem; /* 底部内边距 */
+        }
+        /* 时钟显示样式 - 大字体居中显示时间 */
+        .clock {
+            font-size: 4rem; /* 设置字体大小 */
+            text-align: center; /* 文本居中对齐 */
+            margin-bottom: 1rem; /* 底部外边距 */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* 添加文字阴影效果 */
+        }
+        /* 日期显示样式 - 较小字体显示日期信息 */
+        .date {
+            font-size: 1.2rem; /* 设置字体大小 */
+            text-align: center; /* 文本居中对齐 */
+            margin-bottom: 3rem; /* 底部外边距 */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* 添加文字阴影效果 */
+        }
+        /* 搜索容器样式 - 半透明毛玻璃效果 */
         .search-container {
-            margin: 20px 0;
+            width: 50vw; /* 宽度为视口宽度的40% */
+            max-width: 750px; /* 最大宽度限制 */
+            margin: 0 auto; /* 水平居中 */
+            padding: 1rem; /* 内边距 */
+            background: rgba(255, 255, 255, 0.15); /* 半透明背景 */
+            backdrop-filter: blur(15px); /* 背景模糊效果 */
+            border-radius: 20px; /* 圆角边框 */
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); /* 阴影效果 */
+            transition: all 0.3s ease; /* 过渡动画效果 */
+        }
+        /* 搜索容器悬停效果 - 增加透明度和上移效果 */
+        .search-container:hover {
+            background: rgba(255, 255, 255, 0.2); /* 增加背景透明度 */
+            transform: translateY(-2px); /* 向上移动2像素 */
+        }
+        /* 搜索框容器样式 - 定位搜索图标 */
+        .search-box {
+            position: relative; /* 相对定位，用于定位搜索图标 */
+        }
+        /* 淡入上升动画定义 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0; /* 初始透明度为0 */
+                transform: translateY(20px); /* 初始位置向下20像素 */
+            }
+            to {
+                opacity: 1; /* 最终透明度为1 */
+                transform: translateY(0); /* 最终位置回到原位 */
+            }
+        }
+
+        /* 为时钟、日期和搜索容器添加动画效果 */
+        .clock, .date, .search-container {
+            animation: fadeInUp 0.6s ease-out; /* 应用淡入上升动画 */
+        }
+
+        /* 搜索输入框样式 */
+        .search-box input {
+            width: 100%; /* 宽度占满容器 */
+            padding: 1.2rem 3rem 1.2rem 1.5rem; /* 四周内边距 */
+            border: none; /* 移除边框 */
+            border-radius: 15px; /* 圆角边框 */
+            background: rgba(255, 255, 255, 0.8); /* 半透明背景 */
+            font-size: 1.2rem; /* 字体大小 */
+            transition: all 0.3s ease; /* 过渡动画效果 */
+            color: #333; /* 文字颜色 */
+        }
+        /* 搜索图标样式 */
+        .search-box .bi-search {
+            position: absolute; /* 绝对定位 */
+            right: 1rem; /* 右侧距离 */
+            top: 50%; /* 垂直居中 */
+            transform: translateY(-50%); /* 垂直居中调整 */
+            color: #333; /* 图标颜色 */
+        }
+        /* 搜索框聚焦效果 */
+        .search-box input:focus {
+            outline: none; /* 移除默认聚焦轮廓 */
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); /* 添加发光效果 */
+            background: rgba(255, 255, 255, 0.95); /* 增加背景不透明度 */
+            transform: scale(1.01); /* 轻微放大效果 */
+        }
+
+        /* 工具按钮样式 */
+        .tools-btn {
+            position: fixed; /* 固定定位 */
+            top: 1rem; /* 顶部距离 */
+            right: -1rem; /* 右侧距离 */
+            left: auto; /* 取消左侧自动定位 */
+            background: rgba(255, 255, 255, 0.1); /* 半透明背景 */
+            color: #333; /* 文字颜色 */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* 阴影效果 */
+            transform-origin: center; /* 变换原点居中 */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 过渡动画效果 */
+            border: none; /* 移除边框 */
+            padding: 0.5rem; /* 内边距 */
+            border-radius: 50%; /* 圆形按钮 */
+            width: 45px; /* 按钮宽度 */
+            height: 45px; /* 按钮高度 */
+            cursor: pointer; /* 鼠标指针样式 */
+            z-index: 1050; /* 层级设置 */
+        }
+        /* 工具按钮悬停效果 */
+        .tools-btn:hover {
+            transform: rotate(90deg); /* 旋转90度 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* 增强阴影效果 */
+            background: #fff; /* 背景色变为纯白 */
+            background: rgba(255, 255, 255, 0.3); /* 半透明背景 */
+        }
+        /* 底部名言样式 */
+        .quote {
+            position: fixed; /* 固定定位 */
+            bottom: 2rem; /* 底部距离 */
+            left: 50%; /* 水平居中 */
+            transform: translateX(-50%); /* 水平居中调整 */
+            text-align: center; /* 文本居中 */
+            max-width: 800px; /* 最大宽度 */
+            padding: 0 1rem; /* 左右内边距 */
+            color: rgba(255, 255, 255, 0.9); /* 文字颜色 */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* 文字阴影 */
+        }
+        /* 涟漪效果容器 */
+        .ripple {
+            position: relative; /* 相对定位 */
+            overflow: hidden; /* 隐藏溢出内容 */
+        }
+
+        /* 涟漪动画效果 */
+        .ripple:after {
+            content: ""; /* 添加内容 */
+            display: block; /* 块级显示 */
+            position: absolute; /* 绝对定位 */
+            width: 100%; /* 宽度占满 */
+            height: 100%; /* 高度占满 */
+            top: 0; /* 顶部对齐 */
+            left: 0; /* 左侧对齐 */
+            pointer-events: none; /* 禁用鼠标事件 */
+            background-image: radial-gradient(circle, #000 10%, transparent 10.01%); /* 径向渐变 */
+            background-repeat: no-repeat; /* 背景不重复 */
+            background-position: 50%; /* 背景位置居中 */
+            transform: scale(10,10); /* 初始缩放 */
+            opacity: 0; /* 初始透明 */
+            transition: transform .5s, opacity 1s; /* 过渡动画 */
+        }
+
+        /* 涟漪点击效果 */
+        .ripple:active:after {
+            transform: scale(0,0); /* 缩放到0 */
+            opacity: .2; /* 设置透明度 */
+            transition: 0s; /* 立即过渡 */
+        }
+
+        /* 模态框内容样式 */
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95); /* 半透明背景 */
+            backdrop-filter: blur(10px); /* 背景模糊效果 */
+        }
+        /* 模态框动画效果 */
+        .modal-content {
+            transform: scale(0.7); /* 初始缩放 */
+            opacity: 0; /* 初始透明 */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 过渡动画 */
+        }
+
+        /* 模态框显示动画 */
+        .modal.show .modal-content {
+            transform: scale(1); /* 还原缩放 */
+            opacity: 1; /* 完全不透明 */
+        }
+
+        /* 导航标签样式 */
+        .nav-tabs .nav-link {
+            color: #333; /* 文字颜色 */
+            transition: all 0.3s ease; /* 过渡动画 */
+        }
+
+        /* 导航标签悬停效果 */
+        .nav-tabs .nav-link:hover {
+            transform: translateY(-2px); /* 向上移动效果 */
+        }
+
+        /* 文件项样式 */
+        .file-item {
+            background: rgba(255, 255, 255, 0.1); /* 半透明背景 */
+            backdrop-filter: blur(5px); /* 背景模糊效果 */
+            border-radius: 10px; /* 圆角边框 */
+            padding: 1rem; /* 内边距 */
+            margin-bottom: 1rem; /* 底部外边距 */
+            transition: all 0.3s; /* 过渡动画 */
+        }
+        /* 文件项悬停效果 */
+        .file-item:hover {
+            transform: translateY(-2px); /* 向上移动效果 */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* 阴影效果 */
         }
     </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1 class="mb-4 text-center">文件管理系统</h1>
-        
-        <!-- 消息提示 -->
-        <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
-            <span th:text="${message}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        
-        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <span th:text="${error}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        
-        <!-- 上传区域 -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4>上传文件</h4>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="/upload" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="file" class="form-label">选择文件</label>
-                        <input type="file" class="form-control" id="file" name="file" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="description" class="form-label">文件描述</label>
-                        <textarea class="form-control" id="description" name="description" rows="2"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">上传</button>
-                </form>
-            </div>
-        </div>
-        
-        <!-- 搜索区域 -->
+        <!-- 工具按钮 -->
+    <button class="tools-btn ripple" data-bs-toggle="modal" data-bs-target="#toolsModal">
+        <i class="bi bi-gear-fill text-white"></i>
+    </button>
+    <div class="main-container">
+        <!-- 时钟显示 -->
+        <div class="clock" id="clock">00:00:00</div>
+        <div class="date" id="date">正在加载...</div>
+
+        <!-- 搜索框 -->
         <div class="search-container">
-            <form action="/search" method="GET" class="d-flex">
-                <input type="text" name="keyword" class="form-control me-2" placeholder="搜索文件..." th:value="${keyword}">
-                <button type="submit" class="btn btn-outline-success">搜索</button>
+            <form action="/search" method="GET" id="searchForm">
+                <div class="search-box">
+                    <input type="text" name="keyword" placeholder="搜索文件..." th:value="${keyword}">
+                    <i class="bi bi-search" id="searchIcon" style="cursor: pointer;"></i>
+                </div>
             </form>
         </div>
-        
-        <!-- 文件列表 -->
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>文件列表</h4>
-                <span th:if="${keyword}" class="text-muted">搜索结果: <span th:text="${keyword}"></span></span>
-            </div>
-            <div class="card-body">
-                <div th:if="${files.empty}" class="text-center p-5">
-                    <p class="text-muted">暂无文件</p>
+
+
+
+        <!-- 底部名言 -->
+        <div class="quote" id="quote">加载中...</div>
+    </div>
+
+    <!-- 工具模态框 -->
+    <div class="modal fade" id="toolsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="color: #000">文件管理</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                
-                <div th:unless="${files.empty}">
-                    <div class="row row-cols-1 row-cols-md-2 g-4">
-                        <div class="col" th:each="file : ${files}">
-                            <div class="file-item">
-                                <h5 class="card-title" th:text="${file.fileName}"></h5>
-                                <p class="card-text" th:if="${file.description}" th:text="${file.description}"></p>
-                                <p class="card-text">
-                                    <small class="text-muted">
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="upload-tab" data-bs-toggle="tab" href="#upload">上传文件</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="files-tab" data-bs-toggle="tab" href="#files">文件列表</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3">
+                        <div class="tab-pane fade show active" id="upload">
+                            <form method="POST" action="/upload" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                    <label for="file" class="form-label" style="color: #000">选择文件</label>
+                                    <input type="file" class="form-control" id="file" name="file" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label" style="color: #000">文件描述</label>
+                                    <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">上传</button>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade" id="files">
+                            <div th:if="${files.empty}" class="text-center p-5">
+                                <p class="text-muted">暂无文件</p>
+                            </div>
+                            <div th:unless="${files.empty}" class="files-container">
+                                <div class="file-item" th:each="file : ${files}">
+                                    <h5 th:text="${file.fileName}"></h5>
+                                    <p th:if="${file.description}" th:text="${file.description}"></p>
+                                    <div class="text-muted small">
                                         类型: <span th:text="${file.fileType}"></span><br>
                                         大小: <span th:text="${#numbers.formatDecimal(file.size / 1024, 0, 2)} + ' KB'"></span><br>
                                         上传时间: <span th:text="${#dates.format(file.uploadDate, 'yyyy-MM-dd HH:mm')}"></span>
-                                    </small>
-                                </p>
-                                <a th:href="@{/download/{id}(id=${file.id})}" class="btn btn-sm btn-primary">下载</a>
+                                    </div>
+                                    <a th:href="@{/download/{id}(id=${file.id})}" class="btn btn-sm btn-primary mt-2">下载</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -96,7 +303,89 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- 消息提示 -->
+    <div th:if="${message}" class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div class="toast show" role="alert">
+            <div class="toast-header">
+                <strong class="me-auto">提示</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" th:text="${message}"></div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 搜索功能
+        document.getElementById('searchIcon').addEventListener('click', function() {
+            document.getElementById('searchForm').submit();
+        });
+
+        document.querySelector('input[name="keyword"]').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('searchForm').submit();
+            }
+        });
+
+        // 添加涟漪效果
+        document.querySelectorAll('.ripple').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('div');
+                ripple.classList.add('ripple-effect');
+                this.appendChild(ripple);
+                const rect = this.getBoundingClientRect();
+                ripple.style.left = `${e.clientX - rect.left}px`;
+                ripple.style.top = `${e.clientY - rect.top}px`;
+                ripple.addEventListener('animationend', () => ripple.remove());
+            });
+        });
+    </script>
+    <script>
+        // 时钟显示
+        function updateClock() {
+            const now = new Date();
+            const clock = document.getElementById('clock');
+            const dateDisplay = document.getElementById('date');
+            
+            // 更新时间
+            clock.textContent = now.toLocaleTimeString('zh-CN', { hour12: false });
+            
+            // 更新日期
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateDisplay.textContent = now.toLocaleDateString('zh-CN', options);
+        }
+
+        // 随机名言
+        const quotes = [
+            "生活中最困难的事情就是认识自己。",
+            "时间是一切财富中最珍贵的财富。",
+            "知识就是力量。",
+            "生命不止，学习不止。",
+            "最大的骄傲于最大的自卑都表示心灵的最软弱无力。"
+        ];
+
+        function updateQuote() {
+            const quote = document.getElementById('quote');
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            quote.textContent = randomQuote;
+        }
+
+        // 初始化
+        updateClock();
+        updateQuote();
+        setInterval(updateClock, 1000);
+        setInterval(updateQuote, 30000);
+
+        // 自动隐藏消息提示
+        const toastElList = document.querySelectorAll('.toast');
+        toastElList.forEach(toast => {
+            setTimeout(() => {
+                const bsToast = new bootstrap.Toast(toast);
+                bsToast.hide();
+            }, 3000);
+        });
+    </script>
 </body>
 </html>
