@@ -38,7 +38,9 @@ public class FileStorageService {
         }
     }
 
-    public FileEntity storeFile(MultipartFile file, String description) {
+    public FileEntity storeFile(MultipartFile file, String description, String courseName, 
+                                String courseShortName, String instructor, String semester, 
+                                String uploaderUsername) {
         // Normalize file name
         String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
         
@@ -55,13 +57,18 @@ public class FileStorageService {
             // Copy file to the target location (Replacing existing file with the same name)
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
-            // Save file info to database
+            // Save file info to database with the merged description field
             FileEntity fileEntity = new FileEntity(
                 originalFileName,
                 file.getContentType(),
                 description,
                 uniqueFileName,
-                file.getSize()
+                file.getSize(),
+                courseName,
+                courseShortName,
+                instructor,
+                semester,
+                uploaderUsername
             );
             
             return fileRepository.save(fileEntity);
@@ -69,6 +76,11 @@ public class FileStorageService {
         } catch (IOException ex) {
             throw new RuntimeException("Could not store file " + originalFileName + ". Please try again!", ex);
         }
+    }
+
+    // For backward compatibility with existing code
+    public FileEntity storeFile(MultipartFile file, String description) {
+        return storeFile(file, description, "未指定", "", "未指定", "未指定", "未知用户");
     }
 
     public Resource loadFileAsResource(String storedFileName) {

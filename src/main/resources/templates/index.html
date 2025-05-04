@@ -273,14 +273,46 @@
                     <div class="tab-content mt-3">
                         <div class="tab-pane fade show active" id="upload">
                             <form method="POST" action="/upload" enctype="multipart/form-data">
+                                <div class="alert alert-info" role="alert">
+                                    <i class="bi bi-info-circle"></i> 一次只能上传一个文件。如果有多个文件需要一起上传，建议将它们打包成ZIP或RAR格式，一起上传。
+                                </div>
+                                
                                 <div class="mb-3">
                                     <label for="file" class="form-label" style="color: #000">选择文件</label>
                                     <input type="file" class="form-control" id="file" name="file" required>
                                 </div>
+                                
+                                <!-- 课程信息字段 -->
+                                <div class="mb-3">
+                                    <label for="courseName" class="form-label" style="color: #000">课程全称 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="courseName" name="courseName" 
+                                           placeholder="教学网上显示的，例如 Java程序设计" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="courseShortName" class="form-label" style="color: #000">课程简称</label>
+                                    <input type="text" class="form-control" id="courseShortName" name="courseShortName" 
+                                           placeholder="例如 Java">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="instructor" class="form-label" style="color: #000">授课老师 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="instructor" name="instructor" 
+                                           placeholder="例如 唐大仕" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="semester" class="form-label" style="color: #000">学期 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="semester" name="semester" 
+                                           placeholder="例如 25春" required>
+                                </div>
+                                
                                 <div class="mb-3">
                                     <label for="description" class="form-label" style="color: #000">文件描述</label>
-                                    <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                                    <textarea class="form-control" id="description" name="description" rows="3" 
+                                             placeholder="例如：期中/期末/第一次小测/笔记，也可反映在文件名中。请在此提供关于文件的任何额外说明。"></textarea>
                                 </div>
+                                
                                 <button type="submit" class="btn btn-primary">上传</button>
                             </form>
                         </div>
@@ -290,14 +322,29 @@
                             </div>
                             <div th:unless="${files.empty}" class="files-container">
                                 <div class="file-item" th:each="file : ${files}">
-                                    <h5 th:text="${file.fileName}"></h5>
-                                    <p th:if="${file.description}" th:text="${file.description}"></p>
-                                    <div class="text-muted small">
-                                        类型: <span th:text="${file.fileType}"></span><br>
-                                        大小: <span th:text="${#numbers.formatDecimal(file.size / 1024, 0, 2)} + ' KB'"></span><br>
-                                        上传时间: <span th:text="${#dates.format(file.uploadDate, 'yyyy-MM-dd HH:mm')}"></span>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <h5 th:text="${file.fileName}"></h5>
+                                        <span class="badge bg-info" th:text="${file.semester}"></span>
                                     </div>
-                                    <a th:href="@{/download/{id}(id=${file.id})}" class="btn btn-sm btn-primary mt-2">下载</a>
+                                    
+                                    <div class="course-info mb-2">
+                                        <span class="badge bg-primary me-1" th:text="${file.courseName}"></span>
+                                        <span class="badge bg-secondary me-1" th:if="${file.courseShortName}" th:text="${file.courseShortName}"></span>
+                                        <span class="badge bg-dark" th:text="${file.instructor}"></span>
+                                    </div>
+                                    
+                                    <p th:if="${file.description}" class="text-muted mb-2" th:text="${file.description}"></p>
+                                    
+                                    <div class="text-muted small mb-2">
+                                        <div><i class="bi bi-person-circle me-1"></i>上传者: <span th:text="${file.uploaderUsername != null ? file.uploaderUsername : '未知用户'}"></span></div>
+                                        <div><i class="bi bi-file-earmark me-1"></i>类型: <span th:text="${file.fileType}"></span></div>
+                                        <div><i class="bi bi-hdd me-1"></i>大小: <span th:text="${#numbers.formatDecimal(file.size / 1024, 0, 2)} + ' KB'"></span></div>
+                                        <div><i class="bi bi-calendar me-1"></i>上传时间: <span th:text="${#dates.format(file.uploadDate, 'yyyy-MM-dd HH:mm')}"></span></div>
+                                    </div>
+                                    
+                                    <a th:href="@{/download/{id}(id=${file.id})}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-download"></i> 下载
+                                    </a>
                                 </div>
                             </div>
                         </div>

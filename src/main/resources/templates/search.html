@@ -96,8 +96,19 @@
                             <i class="bi bi-file-earmark-text me-2" style="font-size: 1.5rem;"></i>
                             <h5 class="mb-0" th:text="${file.fileName}"></h5>
                         </div>
+                        
+                        <!-- Course information section -->
+                        <div class="course-info mb-2">
+                            <span class="badge bg-primary me-1" th:text="${file.courseName}"></span>
+                            <span class="badge bg-secondary me-1" th:if="${file.courseShortName}" th:text="${file.courseShortName}"></span>
+                            <span class="badge bg-dark me-1" th:text="${file.instructor}"></span>
+                            <span class="badge bg-info" th:text="${file.semester}"></span>
+                        </div>
+                        
                         <p th:if="${file.description}" class="text-muted mb-2" th:text="${file.description}"></p>
+                        
                         <div class="small text-muted">
+                            <div><i class="bi bi-person-circle me-1"></i>上传者: <span th:text="${file.uploaderUsername != null ? file.uploaderUsername : '未知用户'}"></span></div>
                             <div>类型: <span th:text="${file.fileType}"></span></div>
                             <div>大小: <span th:text="${#numbers.formatDecimal(file.size / 1024, 0, 2)} + ' KB'"></span></div>
                             <div>上传时间: <span th:text="${#dates.format(file.uploadDate, 'yyyy-MM-dd HH:mm')}"></span></div>

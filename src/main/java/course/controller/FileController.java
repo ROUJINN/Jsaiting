@@ -1,6 +1,7 @@
 package course.controller;
 
 import course.model.FileEntity;
+import course.model.UserEntity;
 import course.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -44,6 +45,11 @@ public class FileController {
     @PostMapping("/upload")
     public String uploadFile(@RequestParam("file") MultipartFile file,
                              @RequestParam("description") String description,
+                             @RequestParam("courseName") String courseName,
+                             @RequestParam(value = "courseShortName", required = false) String courseShortName,
+                             @RequestParam("instructor") String instructor,
+                             @RequestParam("semester") String semester,
+                             HttpSession session,
                              RedirectAttributes redirectAttributes) {
         if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute("message", "请选择要上传的文件！");
@@ -51,7 +57,23 @@ public class FileController {
         }
 
         try {
-            FileEntity savedFile = fileStorageService.storeFile(file, description);
+            // Get the current logged-in user
+            UserEntity currentUser = (UserEntity) session.getAttribute("currentUser");
+            String username = currentUser != null ? currentUser.getUsername() : "未知用户";
+            
+            // Handle null values for optional fields
+            if (courseShortName == null) courseShortName = "";
+            
+            FileEntity savedFile = fileStorageService.storeFile(
+                file, 
+                description, 
+                courseName, 
+                courseShortName, 
+                instructor, 
+                semester, 
+                username
+            );
+            
             redirectAttributes.addFlashAttribute("message", 
                 "文件 '" + savedFile.getFileName() + "' 上传成功！");
         } catch (Exception e) {

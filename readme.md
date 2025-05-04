@@ -1,6 +1,11 @@
-### important
+# important !!!
 删去了对数据库文件的追踪
 需要在IDEA里Build->rebulid project 才能继续运行
+
+TODO:
+1. 给用户加个功能，可以删除自己上传的文件
+2. 需要修改前端，用户不应该能看到文件列表
+3. 删掉uploadrecord这张表，只要在file表里搜一下就行了
 
 ### 如何通过git合作?
 
@@ -44,6 +49,7 @@ Spring Boot 3.0.6: Main framework for building the application, configured in po
 Spring MVC: Handles web requests through controllers like FileController.java
 Spring Data JPA: Manages database operations via FileRepository.java
 H2 Database: File-based database for storing file metadata, configured in application.properties
+
 Frontend Technologies
 Thymeleaf: Template engine for rendering HTML pages in index.html
 Bootstrap 5: CSS framework for styling, loaded from CDN in the HTML templates

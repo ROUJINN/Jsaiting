@@ -21,6 +21,7 @@ public class FileEntity {
     
     private String fileType;
     
+    // Merged field for description and additionalNotes
     private String description;
     
     private String storedFilePath;
@@ -29,17 +30,33 @@ public class FileEntity {
     private Date uploadDate;
     
     private long size;
+    
+    // Course information fields
+    private String courseName;     // 课程全称
+    private String courseShortName; // 课程简称
+    private String instructor;     // 授课老师
+    private String semester;       // 学期
+    
+    // Field to store the uploader's username
+    private String uploaderUsername;
 
     public FileEntity() {
     }
     
-    public FileEntity(String fileName, String fileType, String description, String storedFilePath, long size) {
+    public FileEntity(String fileName, String fileType, String description, String storedFilePath, long size,
+                     String courseName, String courseShortName, String instructor, String semester, 
+                     String uploaderUsername) {
         this.fileName = fileName;
         this.fileType = fileType;
         this.description = description;
         this.storedFilePath = storedFilePath;
         this.uploadDate = new Date();
         this.size = size;
+        this.courseName = courseName;
+        this.courseShortName = courseShortName;
+        this.instructor = instructor;
+        this.semester = semester;
+        this.uploaderUsername = uploaderUsername;
     }
 
     // Getters and Setters
@@ -97,5 +114,46 @@ public class FileEntity {
 
     public void setSize(long size) {
         this.size = size;
+    }
+    
+    // Getters and setters for course information
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
+    public String getCourseShortName() {
+        return courseShortName;
+    }
+
+    public void setCourseShortName(String courseShortName) {
+        this.courseShortName = courseShortName;
+    }
+
+    public String getInstructor() {
+        return instructor;
+    }
+
+    public void setInstructor(String instructor) {
+        this.instructor = instructor;
+    }
+
+    public String getSemester() {
+        return semester;
+    }
+
+    public void setSemester(String semester) {
+        this.semester = semester;
+    }
+    
+    public String getUploaderUsername() {
+        return uploaderUsername;
+    }
+
+    public void setUploaderUsername(String uploaderUsername) {
+        this.uploaderUsername = uploaderUsername;
     }
 }

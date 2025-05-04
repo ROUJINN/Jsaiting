@@ -13,6 +13,11 @@ public interface FileRepository extends JpaRepository<FileEntity, Long> {
     
     @Query("SELECT f FROM FileEntity f WHERE " +
            "LOWER(f.fileName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "LOWER(f.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+           "LOWER(f.description) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(f.courseName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(f.courseShortName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(f.instructor) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(f.semester) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<FileEntity> searchByKeyword(@Param("keyword") String keyword);
+
 }
