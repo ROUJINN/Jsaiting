@@ -6,6 +6,7 @@ target/
 # H2 Database Files
 *.mv.db
 *.trace.db
+uploads/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

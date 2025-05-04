@@ -1,3 +1,7 @@
+### important
+删去了对数据库文件的追踪
+需要在IDEA里Build->rebulid project 才能继续运行
+
 ### 如何通过git合作?
 
 **注意: 每次开始修改代码前先git pull**
