@@ -1,7 +1,9 @@
 package course.controller;
 
+import course.model.DownloadRecord;
 import course.model.FileEntity;
 import course.model.UserEntity;
+import course.repository.DownloadRecordRepository;
 import course.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -17,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +28,9 @@ public class FileController {
 
     @Autowired
     private FileStorageService fileStorageService;
+
+    @Autowired
+    private DownloadRecordRepository downloadRecordRepository;
 
     @GetMapping("/about")
     public String about() {
@@ -90,15 +96,26 @@ public class FileController {
     }
 
     @GetMapping("/download/{id}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<Resource> downloadFile(@PathVariable Long id, HttpServletRequest request, HttpSession session) {
+        UserEntity currentUser = (UserEntity) session.getAttribute("currentUser");
+
+
         Optional<FileEntity> fileEntityOpt = fileStorageService.getFileById(id);
-        
+
         if (!fileEntityOpt.isPresent()) {
             return ResponseEntity.notFound().build();
         }
         
         FileEntity fileEntity = fileEntityOpt.get();
         Resource resource = fileStorageService.loadFileAsResource(fileEntity.getStoredFilePath());
+
+        // 记录下载行为
+        DownloadRecord record = new DownloadRecord();
+        record.setFileId(fileEntity.getId());
+        record.setFileName(fileEntity.getFileName());
+        record.setDownloadTime(new Date());
+        record.setUsername(currentUser != null ? currentUser.getUsername() : "匿名用户");
+        downloadRecordRepository.save(record);
 
         // 检测文件的内容类型
         String contentType = null;
@@ -126,4 +143,28 @@ public class FileController {
         model.addAttribute("keyword", keyword);
         return "search";
     }
+
+    @PostMapping("/delete/{id}")
+    public String deleteFile(@PathVariable Long id, RedirectAttributes redirectAttributes, HttpSession session) {
+        UserEntity currentUser = (UserEntity) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            redirectAttributes.addFlashAttribute("error", "请先登录！");
+            return "redirect:/";
+        }
+
+        try {
+            boolean deleted = fileStorageService.deleteFileById(id, currentUser.getUsername());
+            if (deleted) {
+                redirectAttributes.addFlashAttribute("message", "文件删除成功！");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "您无权删除该文件，或文件不存在。");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "删除失败：" + e.getMessage());
+        }
+
+        return "redirect:/user"; // 假设这是用户页面
+    }
+
+
 }

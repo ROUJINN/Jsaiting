@@ -1,14 +1,15 @@
 package course.service;
 
+import course.model.FileEntity;
 import course.model.UserEntity;
 import course.model.DownloadRecord;
-import course.model.UploadRecord;
+import course.repository.FileRepository;
 import course.repository.UserRepository;
 import course.repository.DownloadRecordRepository;
-import course.repository.UploadRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -36,16 +37,11 @@ public class UserService {
     }
 
     @Autowired
-    private UploadRecordRepository uploadRecordRepository;
-
-    @Autowired
     private DownloadRecordRepository downloadRecordRepository;
 
-    public List<UploadRecord> getUploadRecords(UserEntity user) {
-        return uploadRecordRepository.findByUserId(user.getId());
+    public List<DownloadRecord> getDownloadRecords(UserEntity user) {
+        return downloadRecordRepository.findByUsername(user.getUsername());
     }
 
-    public List<DownloadRecord> getDownloadRecords(UserEntity user) {
-        return downloadRecordRepository.findByUserId(user.getId());
-    }
+
 }

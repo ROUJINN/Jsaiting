@@ -2,6 +2,7 @@ package course.service;
 
 import course.config.FileStorageProperties;
 import course.model.FileEntity;
+import course.repository.DownloadRecordRepository;
 import course.repository.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -23,7 +24,11 @@ import java.util.Optional;
 public class FileStorageService {
 
     private final Path fileStorageLocation;
+
     private final FileRepository fileRepository;
+
+
+
 
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties, FileRepository fileRepository) {
@@ -107,8 +112,36 @@ public class FileStorageService {
         }
         return fileRepository.searchByKeyword(keyword);
     }
-    
+    public List<FileEntity> SearchUploadFiles(String username) {
+        return fileRepository.findByUploaderUsername(username);
+    }
+
     public Optional<FileEntity> getFileById(Long id) {
         return fileRepository.findById(id);
     }
+
+    public List<FileEntity> searchFilesByIds(List<Long> ids) {
+        return fileRepository.findByIdIn(ids);
+    }
+
+    public boolean deleteFileById(Long id, String username) {
+        Optional<FileEntity> fileOpt = fileRepository.findById(id);
+        if (fileOpt.isPresent()) {
+            FileEntity file = fileOpt.get();
+            if (!file.getUploaderUsername().equals(username)) {
+                return false; // 不允许删除别人上传的文件
+            }
+            // 删除数据库记录和物理文件
+            fileRepository.delete(file);
+            try {
+                Files.deleteIfExists(Paths.get(file.getStoredFilePath()));
+            } catch (IOException e) {
+                // 记录日志或抛出
+            }
+            return true;
+        }
+        return false;
+    }
+
+
 }

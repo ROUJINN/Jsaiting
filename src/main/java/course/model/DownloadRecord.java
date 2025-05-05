@@ -1,56 +1,35 @@
 package course.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
-@Table(name = "download_records")
 public class DownloadRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
+    private Long fileId;
 
-    @Column(nullable = false)
+    private String username;
+
+    private Date downloadTime;
+
+    // 可选：记录文件名以备查询
     private String fileName;
 
-    @Column(nullable = false)
-    private LocalDateTime downloadTime;
+    // Getter & Setter
+    public Long getId() { return id; }
+    public Long getFileId() { return fileId; }
+    public void setFileId(Long fileId) { this.fileId = fileId; }
 
-    // Getters and setters
-    public Long getId() {
-        return id;
-    }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Date getDownloadTime() { return downloadTime; }
+    public void setDownloadTime(Date downloadTime) { this.downloadTime = downloadTime; }
 
-    public UserEntity getUser() {
-        return user;
-    }
-
-    public void setUser(UserEntity user) {
-        this.user = user;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public LocalDateTime getDownloadTime() {
-        return downloadTime;
-    }
-
-    public void setDownloadTime(LocalDateTime downloadTime) {
-        this.downloadTime = downloadTime;
-    }
+    public String getFileName() { return fileName; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
 }

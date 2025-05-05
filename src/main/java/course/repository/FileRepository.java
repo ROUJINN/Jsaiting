@@ -20,4 +20,7 @@ public interface FileRepository extends JpaRepository<FileEntity, Long> {
            "LOWER(f.semester) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<FileEntity> searchByKeyword(@Param("keyword") String keyword);
 
+    List<FileEntity> findByUploaderUsername(String uploaderUsername);
+
+    List<FileEntity> findByIdIn(List<Long> ids);
 }
