@@ -26,6 +26,11 @@ public class FileController {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @GetMapping("/about")
+    public String about() {
+        return "about";
+    }
+
     @GetMapping("/")
     public String homepage(HttpSession session, Model model, @RequestParam(required = false) String keyword) {
         if(session.getAttribute("currentUser") == null){

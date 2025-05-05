@@ -41,6 +41,9 @@ spring.datasource.password=password
 密码：password\
 也可以自己注册
 
+### 前端部分的一些提示
+文件列表的功能已经去除了，如果希望在button中加入其他功能，可以在index.html中第269行添加或修改
+
 ### 用到的技术
 
 Backend Technologies

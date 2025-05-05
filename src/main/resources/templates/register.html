@@ -5,9 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>注册</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+      * {
+        font-family: 'Roboto', sans-serif;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://s2.loli.net/2025/05/03/L7y1IpzsaETUc3h.jpg') no-repeat center center fixed;
+        background-size: cover;
+        color: #fff;
+      }
+      .main-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        padding-top: 15vh;
+        padding-left: 2rem;
+        padding-right: 2rem;
+        padding-bottom: 2rem;
+      }
+      .register-container {
+        width: 50vw;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.6s ease-out;
+      }
+      .register-container:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        border-radius: 15px;
+      }
+      .card-header {
+        background: rgba(255, 255, 255, 0.95);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 15px 15px 0 0;
+      }
+      .form-control {
+        background: rgba(255, 255, 255, 0.8);
+        border: none;
+        border-radius: 10px;
+        padding: 0.8rem;
+        transition: all 0.3s ease;
+      }
+      .form-control:focus {
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        transform: scale(1.01);
+      }
+      .btn-primary {
+        background: #007bff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.8rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+      }
+    </style>
 </head>
 <body>
-<div class="container mt-5">
+<div class="main-container">
+<div class="register-container">
     <h1 class="mb-4 text-center">注册</h1>
 
     <!-- 消息提示 -->
@@ -19,27 +104,88 @@
     <!-- 注册表单 -->
     <div class="card">
         <div class="card-header">
-            <h4>创建新账号</h4>
+            <h4 style="color: black;">创建新账号</h4>
         </div>
         <div class="card-body">
             <form method="POST" action="/register">
                 <div class="mb-3">
-                    <label for="username" class="form-label">用户名</label>
+                    <label for="username" class="form-label" style="color: black;">用户名</label>
                     <input type="text" class="form-control" id="username" name="username" required>
                 </div>
                 <div class="mb-3">
-                    <label for="password" class="form-label">密码</label>
+                    <label for="password" class="form-label" style="color: black;">密码</label>
                     <input type="password" class="form-control" id="password" name="password" required>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">注册</button>
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label" style="color: black;">确认密码</label>
+                    <input type="password" class="form-control" id="confirmPassword" required>
+                    <div id="passwordMismatch" class="text-danger" style="display: none;">两次输入的密码不一致</div>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="agreeTerms">
+                    <label class="form-check-label" for="agreeTerms" style="color: black;">我已阅读并同意<a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">用户协议</a></label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100" id="submitBtn" disabled>注册</button>
             </form>
             <div class="text-center mt-3">
                 <a href="/login" class="text-decoration-none">已有账号？点击登录</a>
+                <br>
+                <a href="/about" class="text-decoration-none mt-2 d-inline-block">关于我们</a>
             </div>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- 用户协议模态框 -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="termsModalLabel" style="color: black;">用户协议</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="color: black;">
+                <h6>1. 服务条款的确认和接纳</h6>
+                <p>本网站的各项服务的所有权和运作权归本网站所有。本网站提供的服务将完全按照其发布的服务条款和操作规则严格执行。</p>
+                
+                <h6>2. 服务内容</h6>
+                <p>本网站的具体服务内容由本网站根据实际情况提供，包括但不限于：文件上传、存储、分享等。</p>
+                
+                <h6>3. 用户隐私制度</h6>
+                <p>本网站将严格保护用户隐私，未经用户授权不会公开、编辑或透露用户的注册资料。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirmPassword');
+    const passwordMismatch = document.getElementById('passwordMismatch');
+    const submitBtn = document.getElementById('submitBtn');
+    const agreeTerms = document.getElementById('agreeTerms');
+
+    function validateForm() {
+        const passwordsMatch = password.value === confirmPassword.value;
+        const termsAgreed = agreeTerms.checked;
+        submitBtn.disabled = !passwordsMatch || !termsAgreed;
+        
+        if (!passwordsMatch) {
+            passwordMismatch.style.display = 'block';
+        } else {
+            passwordMismatch.style.display = 'none';
+        }
+    }
+
+    password.addEventListener('input', validateForm);
+    confirmPassword.addEventListener('input', validateForm);
+    agreeTerms.addEventListener('change', validateForm);
+});
+</script>
 </body>
 </html>
