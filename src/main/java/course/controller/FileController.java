@@ -2,7 +2,9 @@ package course.controller;
 
 import course.model.DownloadRecord;
 import course.model.FileEntity;
+import course.model.FileEntity.Comment;
 import course.model.UserEntity;
+import course.repository.FileRepository;
 import course.repository.DownloadRecordRepository;
 import course.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +34,9 @@ public class FileController {
 
     @Autowired
     private DownloadRecordRepository downloadRecordRepository;
+
+    @Autowired
+    private FileRepository fileRepository;
 
     @GetMapping("/about")
     public String about() {
@@ -166,5 +172,42 @@ public class FileController {
         return "redirect:/user"; // 假设这是用户页面
     }
 
+    @PostMapping("/comments/{fileId}")
+    public String addComment(@PathVariable Long fileId,
+                             @RequestParam("commentText") String commentText,
+                             HttpSession session,
+                             RedirectAttributes redirectAttributes) {
+        UserEntity currentUser = (UserEntity) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            redirectAttributes.addFlashAttribute("error", "请先登录后再发表评论！");
+            return "redirect:/login";
+        }
+
+        Optional<FileEntity> fileEntityOpt = fileRepository.findById(fileId);
+        if (!fileEntityOpt.isPresent()) {
+            redirectAttributes.addFlashAttribute("error", "文件未找到，无法发表评论！");
+            return "redirect:/search";
+        }
+
+        FileEntity fileEntity = fileEntityOpt.get();
+        Comment comment = new Comment(currentUser.getUsername(), commentText);
+        fileEntity.addComment(comment);
+        fileRepository.save(fileEntity);
+
+        redirectAttributes.addFlashAttribute("message", "评论已成功发布！");
+        return "redirect:/";
+    }
+
+    @GetMapping("/comments/{fileId}")
+    @ResponseBody
+    public ResponseEntity<List<Comment>> getComments(@PathVariable Long fileId) {
+        Optional<FileEntity> fileEntityOpt = fileRepository.findById(fileId);
+        if (fileEntityOpt.isPresent()) {
+            List<Comment> comments = fileEntityOpt.get().getComments();
+            return ResponseEntity.ok(comments);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }

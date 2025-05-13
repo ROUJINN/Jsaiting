@@ -1,5 +1,6 @@
 package course.model;
 
+import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -7,12 +8,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "files")
 public class FileEntity {
-    
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -39,6 +43,10 @@ public class FileEntity {
     
     // Field to store the uploader's username
     private String uploaderUsername;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "fileEntity")
+    private List<Comment> comments = new ArrayList<>();
+
 
     public FileEntity() {
     }
@@ -156,4 +164,94 @@ public class FileEntity {
     public void setUploaderUsername(String uploaderUsername) {
         this.uploaderUsername = uploaderUsername;
     }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        comment.setFileEntity(this);
+    }
+
+    public void removeComment(Comment comment) {
+        comments.remove(comment);
+        comment.setFileEntity(null);
+    }
+
+    @Entity
+    @Table(name = "comments")
+    public static class Comment {
+
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+
+        private String commenterUsername;
+
+        private String text;
+
+        @Temporal(TemporalType.TIMESTAMP)
+        private Date commentDate;
+
+        @ManyToOne
+        @JoinColumn(name = "file_id", nullable = false)
+        private FileEntity fileEntity;
+
+        public Comment() {
+        }
+
+        public Comment(String commenterUsername, String text) {
+            this.commenterUsername = commenterUsername;
+            this.text = text;
+            this.commentDate = new Date();
+        }
+
+        // Getters and Setters
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getCommenterUsername() {
+            return commenterUsername;
+        }
+
+        public void setCommenterUsername(String commenterUsername) {
+            this.commenterUsername = commenterUsername;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public Date getCommentDate() {
+            return commentDate;
+        }
+
+        public void setCommentDate(Date commentDate) {
+            this.commentDate = commentDate;
+        }
+
+        public FileEntity getFileEntity() {
+            return fileEntity;
+        }
+
+        public void setFileEntity(FileEntity fileEntity) {
+            this.fileEntity = fileEntity;
+        }
+    }
+
+
 }
