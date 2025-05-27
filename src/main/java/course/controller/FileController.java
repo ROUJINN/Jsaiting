@@ -21,10 +21,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
 public class FileController {
@@ -45,6 +43,7 @@ public class FileController {
 
     @GetMapping("/")
     public String homepage(HttpSession session, Model model, @RequestParam(required = false) String keyword) {
+        System.out.println(2);
         if(session.getAttribute("currentUser") == null){
             return "login";
         }
@@ -177,6 +176,7 @@ public class FileController {
                              @RequestParam("commentText") String commentText,
                              HttpSession session,
                              RedirectAttributes redirectAttributes) {
+        assert false;
         UserEntity currentUser = (UserEntity) session.getAttribute("currentUser");
         if (currentUser == null) {
             redirectAttributes.addFlashAttribute("error", "请先登录后再发表评论！");
@@ -184,10 +184,6 @@ public class FileController {
         }
 
         Optional<FileEntity> fileEntityOpt = fileRepository.findById(fileId);
-        if (!fileEntityOpt.isPresent()) {
-            redirectAttributes.addFlashAttribute("error", "文件未找到，无法发表评论！");
-            return "redirect:/search";
-        }
 
         FileEntity fileEntity = fileEntityOpt.get();
         Comment comment = new Comment(currentUser.getUsername(), commentText);
@@ -200,14 +196,24 @@ public class FileController {
 
     @GetMapping("/comments/{fileId}")
     @ResponseBody
-    public ResponseEntity<List<Comment>> getComments(@PathVariable Long fileId) {
-        Optional<FileEntity> fileEntityOpt = fileRepository.findById(fileId);
-        if (fileEntityOpt.isPresent()) {
-            List<Comment> comments = fileEntityOpt.get().getComments();
-            return ResponseEntity.ok(comments);
-        } else {
-            return ResponseEntity.notFound().build();
+    public List<Map<String, Object>> getComments(@PathVariable Long fileId) {
+        Optional<FileEntity> optionalFile = fileRepository.findById(fileId);
+        if (optionalFile.isEmpty()) {
+            return Collections.emptyList();
         }
-    }
 
+        FileEntity file = optionalFile.get();
+        List<Comment> comments = file.getComments();
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Comment comment : comments) {
+            Map<String, Object> commentMap = new HashMap<>();
+            commentMap.put("commenterUsername", comment.getCommenterUsername());
+            commentMap.put("text", comment.getText());
+            commentMap.put("commentDate", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(comment.getCommentDate()));
+            result.add(commentMap);
+        }
+
+        return result;
+    }
 }
