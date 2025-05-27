@@ -63,114 +63,170 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 搜索头部 -->
-        <div class="search-header mb-4">
-            <form action="/search" method="GET" class="search-form">
-                <div class="input-group">
-                    <input type="text" name="keyword" class="form-control search-input" 
-                           th:value="${keyword}" placeholder="搜索文件...">
-                    <button type="submit" class="btn btn-primary search-btn">
-                        <i class="bi bi-search"></i> 搜索
-                    </button>
-                </div>
-            </form>
+<div class="container">
+    <!-- 搜索头部 -->
+    <div class="search-header mb-4">
+        <form action="/search" method="GET" class="search-form">
+            <div class="input-group">
+                <input type="text" name="keyword" class="form-control search-input"
+                       th:value="${keyword}" placeholder="搜索文件...">
+                <button type="submit" class="btn btn-primary search-btn">
+                    <i class="bi bi-search"></i> 搜索
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 搜索结果 -->
+    <div class="results-container">
+        <h4 class="text-white mb-3" th:if="${keyword}">
+            搜索结果: <span th:text="${keyword}"></span>
+        </h4>
+
+        <!-- 无结果提示 -->
+        <div th:if="${#lists.isEmpty(files)}" class="text-center text-white p-5">
+            <i class="bi bi-search" style="font-size: 3rem;"></i>
+            <p class="mt-3">未找到相关文件</p>
         </div>
 
-        <!-- 搜索结果 -->
-        <div class="results-container">
-            <h4 class="text-white mb-3" th:if="${keyword}">
-                搜索结果: <span th:text="${keyword}"></span>
-            </h4>
-            
-            <!-- 无结果提示 -->
-            <div th:if="${#lists.isEmpty(files)}" class="text-center text-white p-5">
-                <i class="bi bi-search" style="font-size: 3rem;"></i>
-                <p class="mt-3">未找到相关文件</p>
-            </div>
+        <!-- 文件列表 -->
+        <div th:unless="${#lists.isEmpty(files)}" class="row">
+            <div th:each="file : ${files}" class="col-md-6 col-lg-4 mb-4">
+                <div class="file-card p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-file-earmark-text me-2" style="font-size: 1.5rem;"></i>
+                        <h5 class="mb-0" th:text="${file.fileName}"></h5>
+                    </div>
 
-            <!-- 文件列表 -->
-            <div th:unless="${#lists.isEmpty(files)}" class="row">
-                <div th:each="file : ${files}" class="col-md-6 col-lg-4 mb-4">
-                    <div class="file-card p-3">
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="bi bi-file-earmark-text me-2" style="font-size: 1.5rem;"></i>
-                            <h5 class="mb-0" th:text="${file.fileName}"></h5>
-                        </div>
-                        
-                        <!-- Course information section -->
-                        <div class="course-info mb-2">
-                            <span class="badge bg-primary me-1" th:text="${file.courseName}"></span>
-                            <span class="badge bg-secondary me-1" th:if="${file.courseShortName}" th:text="${file.courseShortName}"></span>
-                            <span class="badge bg-dark me-1" th:text="${file.instructor}"></span>
-                            <span class="badge bg-info" th:text="${file.semester}"></span>
-                        </div>
-                        
-                        <p th:if="${file.description}" class="text-muted mb-2" th:text="${file.description}"></p>
-                        
-                        <div class="small text-muted">
-                            <div><i class="bi bi-person-circle me-1"></i>上传者: <span th:text="${file.uploaderUsername != null ? file.uploaderUsername : '未知用户'}"></span></div>
-                            <div>类型: <span th:text="${file.fileType}"></span></div>
-                            <div>大小: <span th:text="${#numbers.formatDecimal(file.size / 1024, 0, 2)} + ' KB'"></span></div>
-                            <div>上传时间: <span th:text="${#dates.format(file.uploadDate, 'yyyy-MM-dd HH:mm')}"></span></div>
-                        </div>
-                        <div class="mt-2">
-                            <a th:href="@{/download/{id}(id=${file.id})}" class="btn btn-sm btn-primary">
-                                <i class="bi bi-download"></i> 下载
-                            </a>
-                            <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" th:attr="data-bs-target='#commentModal-' + ${file.id}">
-                                <i class="bi bi-chat-dots"></i> 评论
-                            </button>
-                        </div>
+                    <!-- Course information section -->
+                    <div class="course-info mb-2">
+                        <span class="badge bg-primary me-1" th:text="${file.courseName}"></span>
+                        <span class="badge bg-secondary me-1" th:if="${file.courseShortName}" th:text="${file.courseShortName}"></span>
+                        <span class="badge bg-dark me-1" th:text="${file.instructor}"></span>
+                        <span class="badge bg-info" th:text="${file.semester}"></span>
+                    </div>
+
+                    <p th:if="${file.description}" class="text-muted mb-2" th:text="${file.description}"></p>
+
+                    <div class="small text-muted">
+                        <div><i class="bi bi-person-circle me-1"></i>上传者: <span th:text="${file.uploaderUsername != null ? file.uploaderUsername : '未知用户'}"></span></div>
+                        <div>类型: <span th:text="${file.fileType}"></span></div>
+                        <div>大小: <span th:text="${#numbers.formatDecimal(file.size / 1024, 0, 2)} + ' KB'"></span></div>
+                        <div>上传时间: <span th:text="${#dates.format(file.uploadDate, 'yyyy-MM-dd HH:mm')}"></span></div>
+                    </div>
+                    <div class="mt-2">
+                        <a th:href="@{/download/{id}(id=${file.id})}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-download"></i> 下载
+                        </a>
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" th:attr="data-bs-target='#commentModal-' + ${file.id}">
+                            <i class="bi bi-chat-dots"></i> 评论
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- 评论模态框 -->
-        <div th:each="file : ${files}">
-            <div class="modal fade" th:id="'commentModal-' + ${file.id}" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" th:text="'文件评论 - ' + ${file.fileName}"></h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <h6>所有评论:</h6>
-                            <ul class="list-group mb-3" th:if="${file.comments}">
+    <!-- 评论模态框 -->
+    <div th:each="file : ${files}">
+        <div class="modal fade" th:id="'commentModal-' + ${file.id}" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" th:text="'文件评论 - ' + ${file.fileName}"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6>所有评论:</h6>
+                        <div class="comment-scroll-container mb-3" style="max-height: 400px; overflow-y: auto;">
+                            <ul class="list-group" th:if="${file.comments}">
                                 <li class="list-group-item" th:each="comment : ${file.comments}">
                                     <div>
                                         <strong th:text="${comment.commenterUsername}"></strong>:
-                                        <span th:text="${comment.text}"></span>
+                                        <span th:text="${comment.text}" style="word-break: break-word;"></span>
                                     </div>
                                     <div class="text-muted small" th:text="${#dates.format(comment.commentDate, 'yyyy-MM-dd HH:mm:ss')}"></div>
                                 </li>
                             </ul>
                             <div th:if="${#lists.isEmpty(file.comments)}" class="text-muted">暂无评论</div>
-
-                            <h6 class="mt-3">发布新评论:</h6>
-                            <form th:action="@{/comments/{fileId}(fileId=${file.id})}" method="POST">
-                                <div class="mb-3">
-                                    <textarea class="form-control" name="commentText" rows="3" placeholder="请输入评论内容..."></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-primary">提交评论</button>
-                            </form>
                         </div>
+                        <div th:if="${#lists.isEmpty(file.comments)}" class="text-muted">暂无评论</div>
+
+                        <h6 class="mt-3">发布新评论:</h6>
+                        <form th:attr="onsubmit='submitComment(event,' + ${file.id} + ')'" id="comment-form-[[${file.id}]]">
+                            <div class="mb-3">
+                                <textarea class="form-control" name="commentText" rows="3" placeholder="请输入评论内容..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">提交评论</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- 返回首页按钮 -->
-        <div class="text-center mt-4">
-            <a href="/" class="btn btn-outline-light">
-                <i class="bi bi-house-door"></i> 返回首页
-            </a>
-        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 返回首页按钮 -->
+    <div class="text-center mt-4">
+        <a href="/" class="btn btn-outline-light">
+            <i class="bi bi-house-door"></i> 返回首页
+        </a>
+    </div>
+</div>
+
+<script>
+    function submitComment(event, fileId) {
+        event.preventDefault();
+        const form = event.target;
+        const commentText = form.commentText.value.trim();
+        if (!commentText) return;
+        const formData = new FormData();
+        formData.append("commentText", commentText);
+
+        axios.post(`/comments/${fileId}`, formData)
+            .then(response => {
+                form.commentText.value = "";
+                loadComments(fileId);
+            })
+            .catch(error => {
+                console.error("评论提交失败:", error);
+                alert("提交失败，请稍后重试。");
+            });
+                }
+
+    function loadComments(fileId) {
+        axios.get(`/comments/${fileId}`)
+            .then(response => {
+                const comments = response.data;
+                const container = document.querySelector(`#commentModal-${fileId} .comment-scroll-container`);
+
+                if (!comments || comments.length === 0) {
+                    container.innerHTML = `<div class="text-muted">暂无评论</div>`;
+                    return;
+                }
+
+                const ul = document.createElement("ul");
+                ul.className = "list-group";
+
+                for (const c of comments) {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item";
+                    li.innerHTML = `
+                        <div><strong>${c.commenterUsername}</strong>: <span style="word-break: break-word;">${c.text}</span></div>
+                        <div class="text-muted small">${c.commentDate}</div>
+                    `;
+                    ul.appendChild(li);
+                }
+
+                container.innerHTML = "";
+                container.appendChild(ul);
+            })
+            .catch(error => {
+                console.error("获取评论失败:", error);
+                alert("获取评论失败，请稍后重试。");
+            });
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
