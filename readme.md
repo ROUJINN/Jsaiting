@@ -64,7 +64,7 @@ Jsaiting是一个基于Spring Boot开发的文件上传与下载系统，旨在�
 
 ## 类图
 
-![](D:\Code_space\java_project\Jsaiting\FileStorageService.png)
+![](FileStorageService.png)
 
 ## 主要类及方法
 
