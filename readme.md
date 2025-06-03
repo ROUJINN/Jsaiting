@@ -1,60 +1,130 @@
-# important !!!
-删去了对数据库文件的追踪
-需要在IDEA里Build->rebulid project 才能继续运行
+# 白鲸大学课程文件管理系统
 
-TODO:
-1. 给用户加个功能，可以删除自己上传的文件
-2. 需要修改前端，用户不应该能看到文件列表
-3. 删掉uploadrecord这张表，只要在file表里搜一下就行了
+## 项目介绍
 
-### 如何通过git合作?
+本项目是一个基于Spring Boot开发的文件上传与下载系统，旨在提供一个简单、高效的文件共享平台。用户可以上传各类文件，添加详细描述信息，并按照课程、教师、学期等信息进行分类。系统支持文件搜索、下载记录追踪以及文件评论功能，为用户提供完整的文件管理体验。
 
-**注意: 每次开始修改代码前先git pull**
+## 主要功能
 
-目前只用一个branch就是main, 我们自己都在main上面改. 如果自己在修改的过程中, 远程的main发生了更新, 那么操作是: 先git stash,再git pull, 再git stash apply, 参考下面的命令.
-```
-git stash # 保存当前修改
-git stash list #列出所有的stash
-git stash apply stash@{1} #恢复指定的 stash，例如 stash@{1}
-git stash drop # 删除最近的stash
-```
+### 用户管理
+- 用户注册与登录
+- 个人上传历史查看
+- 个人下载记录查看
 
-### 运行方式
-IDEA中启动main之后，在本地浏览器打开
+### 文件管理
+- 文件上传（支持添加详细描述、课程信息等元数据）
+- 文件搜索（支持按文件名、描述、课程名等多维度搜索）
+- 文件下载（自动记录下载历史）
+- 文件删除（仅允许删除自己上传的文件）
 
-http://localhost:8080/
+### 评论系统
+- 为文件添加评论
+- 查看文件的所有评论
 
-数据库H2的控制台
+## 技术栈
 
-http://localhost:8080/h2-console/
+### 后端技术
+- **Spring Boot 3.0.6**: 应用框架
+- **Spring MVC**: Web层框架
+- **Spring Data JPA**: 数据访问层框架
+- **H2 Database**: 内存数据库
+- **Thymeleaf**: 服务器端模板引擎
+- **Lombok**: 简化Java代码
 
-打开控制台后，要设置JDBC URL为jdbc:h2:file:./filedb
+### 前端技术
+- **HTML/CSS/JavaScript**: 基础前端技术
+- **Thymeleaf模板**: 与Spring Boot集成的模板引擎
 
-用户名密码为
+## 系统架构
 
-spring.datasource.username=sa
+### 分层架构
 
-spring.datasource.password=password
+项目采用经典的MVC分层架构：
 
-### 登录
-用户名：me\
-密码：password\
-也可以自己注册
+1. **控制层(Controller)**: 处理HTTP请求，调用服务层完成业务逻辑
+   - `FileController`: 处理文件上传、下载、搜索等请求
+   - `UserController`: 处理用户注册、登录等请求
 
-### 前端部分的一些提示
-文件列表的功能已经去除了，如果希望在button中加入其他功能，可以在index.html中第269行添加或修改
+2. **服务层(Service)**: 实现业务逻辑
+   - `FileStorageService`: 文件存储、检索服务
+   - `UserService`: 用户认证、注册服务
 
-### 用到的技术
+3. **数据访问层(Repository)**: 与数据库交互
+   - `FileRepository`: 文件数据访问
+   - `UserRepository`: 用户数据访问
+   - `DownloadRecordRepository`: 下载记录数据访问
 
-Backend Technologies
-Java 17: The programming language version used as specified in pom.xml
-Spring Boot 3.0.6: Main framework for building the application, configured in pom.xml and used in Main.java
-Spring MVC: Handles web requests through controllers like FileController.java
-Spring Data JPA: Manages database operations via FileRepository.java
-H2 Database: File-based database for storing file metadata, configured in application.properties
+4. **模型层(Model)**: 数据实体
+   - `FileEntity`: 文件实体，包含文件信息和评论内部类
+   - `UserEntity`: 用户实体
+   - `DownloadRecord`: 下载记录实体
 
-Frontend Technologies
-Thymeleaf: Template engine for rendering HTML pages in index.html
-Bootstrap 5: CSS framework for styling, loaded from CDN in the HTML templates
-Build Tools
-Maven: For dependency management and project building, defined in pom.xml
+### 配置
+- `FileStorageProperties`: 文件存储配置，指定上传目录
+
+## 类图
+
+![](D:\Code_space\java_project\Jsaiting\FileStorageService.png)
+
+## 主要类及方法
+
+### 控制器(Controller)
+
+#### FileController
+- `homepage()`: 显示主页和文件列表
+- `uploadFile()`: 处理文件上传
+- `downloadFile()`: 处理文件下载并记录
+- `searchFiles()`: 搜索文件
+- `deleteFile()`: 删除文件
+- `addComment()`: 添加文件评论
+- `getComments()`: 获取文件评论
+
+#### UserController
+- `loginUser()`: 用户登录
+- `registerUser()`: 用户注册
+- `userPage()`: 显示用户个人页面，包含上传和下载历史
+
+### 服务(Service)
+
+#### FileStorageService
+- `storeFile()`: 存储上传的文件
+- `loadFileAsResource()`: 加载文件为资源
+- `getAllFiles()`: 获取所有文件
+- `searchFiles()`: 搜索文件
+- `getFileById()`: 通过ID获取文件
+- `deleteFileById()`: 通过ID删除文件
+
+#### UserService
+- `registerUser()`: 注册新用户
+- `authenticateUser()`: 验证用户登录
+- `getDownloadRecords()`: 获取用户下载记录
+
+### 数据实体(Entity)
+
+#### FileEntity
+- 存储文件信息：文件名、类型、描述、路径、大小等
+- 包含课程信息：课程名称、教师、学期等
+- 内部类`Comment`：存储文件评论
+
+#### UserEntity
+- 存储用户信息：用户名、密码
+
+#### DownloadRecord
+- 记录下载信息：文件ID、用户名、下载时间、文件名
+
+### 数据访问(Repository)
+
+#### FileRepository
+- `searchByKeyword()`: 通过关键词搜索文件
+- `findByUploaderUsername()`: 查找用户上传的文件
+- `findByIdIn()`: 通过ID列表查找文件
+
+#### UserRepository
+- `findByUsername()`: 通过用户名查找用户
+
+#### DownloadRecordRepository
+- `findByUsername()`: 查找用户的下载记录
+
+## 总结
+
+本项目是一个功能完整的文件管理系统，通过Spring Boot框架实现了文件上传、下载、搜索、评论等核心功能。系统采用分层架构设计，代码结构清晰，易于维护和扩展。通过整合Spring Data JPA和H2数据库，实现了高效的数据存储和检索。
