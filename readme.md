@@ -5,6 +5,21 @@
 
 我们已经将本项目部署在网上，通过校园网访问 10.129.240.179:8080 即可访问我们托管的前端页面。
 
+
+数据库H2的控制台为
+http://localhost:8080/h2-console/
+
+打开控制台后，要设置JDBC URL为jdbc:h2:file:./filedb
+
+控制台的用户名密码为
+
+spring.datasource.username=sa
+
+spring.datasource.password=password
+
+用户个人的用户密码可自行注册
+
+
 ## 项目介绍
 
 白鲸大学的同学们对于课程的学习总是精益求精的，一个好的文件管理和共享平台对于提高我们的学习效率。我们借鉴了PKUHUB这个网页的想法，并添加了文件评论等更加有意义的功能。
